@@ -7,6 +7,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var previewImage: UIImageView!
     @IBOutlet private weak var questionLabel: UILabel!
 
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
     private let questionAmount: Int = 10
@@ -151,6 +153,36 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         for button in buttons {
             button.isEnabled = enabled
         }
+    }
+    
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    
+    private func hideLoadingIndicator() {
+        activityIndicator.isHidden = true
+        activityIndicator.stopAnimating()
+    }
+    
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator()
+
+        
+        let alertData = AlertModel(
+            title: "Ощибка",
+            message: message,
+            buttonText: "Попробовать ещё раз"
+        ) { [weak self] in
+            guard let self = self else { return }
+
+            self.currentQuestionIndex = 0
+            self.correctAnswers = 0
+            
+            self.questionFactory?.requestNextQuestion()
+        }
+
+        alertPresenter?.show(data: alertData)
     }
 }
 
