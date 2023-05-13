@@ -54,6 +54,26 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         showNetworkError(message: error.localizedDescription)
     }
     
+    func showNetworkError(message: String) {
+        hideLoadingIndicator()
+
+        
+        let alertData = AlertModel(
+            title: "Ощибка",
+            message: message,
+            buttonText: "Попробовать ещё раз"
+        ) { [weak self] in
+            guard let self = self else { return }
+
+            self.currentQuestionIndex = 0
+            self.correctAnswers = 0
+            
+            self.questionFactory?.requestNextQuestion()
+        }
+
+        alertPresenter?.show(data: alertData)
+    }
+    
     
 
     // MARK: - Actions
@@ -168,26 +188,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private func hideLoadingIndicator() {
         activityIndicator.isHidden = true
         activityIndicator.stopAnimating()
-    }
-    
-    private func showNetworkError(message: String) {
-        hideLoadingIndicator()
-
-        
-        let alertData = AlertModel(
-            title: "Ощибка",
-            message: message,
-            buttonText: "Попробовать ещё раз"
-        ) { [weak self] in
-            guard let self = self else { return }
-
-            self.currentQuestionIndex = 0
-            self.correctAnswers = 0
-            
-            self.questionFactory?.requestNextQuestion()
-        }
-
-        alertPresenter?.show(data: alertData)
     }
 }
 
