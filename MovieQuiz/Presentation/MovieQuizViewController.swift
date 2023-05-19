@@ -5,8 +5,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var indexLabel: UILabel!
     @IBOutlet private weak var previewImage: UIImageView!
     @IBOutlet private weak var questionLabel: UILabel!
-
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
@@ -26,7 +25,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 
         alertPresenter = AlertPresenter(view: self)
 
-        questionFactory = QuestionFactory.init(moviesLoader: MoviesLoader(), delegate: self)
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         showLoadingIndicator()
         questionFactory?.loadData()
     }
@@ -57,7 +56,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     func showNetworkError(message: String) {
         hideLoadingIndicator()
 
-        
         let alertData = AlertModel(
             title: "Ощибка",
             message: message,
@@ -65,10 +63,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         ) { [weak self] in
             guard let self = self else { return }
 
-            self.currentQuestionIndex = 0
-            self.correctAnswers = 0
-            
-            self.questionFactory?.requestNextQuestion()
+            self.questionFactory?.loadData()
+            self.showLoadingIndicator()
         }
 
         alertPresenter?.show(data: alertData)
