@@ -11,10 +11,14 @@ import UIKit
 
 final class MovieQuizPresenter {
     let questionAmount: Int = 10
-    private var currentQuestionIndex: Int = 0
+    
     var currentQuestion: QuizQuestion?
+    var correctAnswers: Int = 0
+    
     weak var viewController: MovieQuizViewController?
-
+    
+    private var currentQuestionIndex: Int = 0
+    
     func convert(model: QuizQuestion) -> QuizStepViewModel {
         let image = UIImage(data: model.image) ?? UIImage()
         let index = currentQuestionIndex + 1
@@ -39,16 +43,58 @@ final class MovieQuizPresenter {
     }
     
     func noButtonPress() {
-        guard let currentQuestion = currentQuestion else { return }
-    
-        viewController?.setButtons(enabled: false)
-        viewController?.showAnswerResult(isCorrect: !currentQuestion.correctAnswer)
+        didAnswer(isYes: false)
     }
 
     func yesButtonPress() {
-        guard let currentQuestion = currentQuestion else { return }
+        didAnswer(isYes: true)
+    }
+    
+    private func didAnswer(isYes: Bool) {
+        guard let currentQuestion = currentQuestion else {
+            return
+        }
         
         viewController?.setButtons(enabled: false)
-        viewController?.showAnswerResult(isCorrect: currentQuestion.correctAnswer)
+        viewController?.showAnswerResult(
+            isCorrect:  isYes ? currentQuestion.correctAnswer : !currentQuestion.correctAnswer
+        )
+    }
+    
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question = question else {
+            return
+        }
+        
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        DispatchQueue.main.async { [weak self] in
+            self?.viewController?.show(quiz: viewModel)
+        }
+    }
+    
+    func showNextQuestionOrResults() {
+        if isLastQWuestion() {
+            viewController?.statisticService?.store(correct: correctAnswers, total: questionAmount)
+        
+            guard let record = viewController?.statisticService?.bestGame,
+                  let gamesCount = viewController?.statisticService?.gamesCount,
+                  let acuracy = viewController?.statisticService?.totalAccuracy else {
+                return
+            }
+
+            let message = "Ваш результат: \(correctAnswers)/\(questionAmount)\nКоличество сыгранных квизов: \(gamesCount)\nРекорд: \(record.correct)/\(record.total) (\(record.date))\nСредняя точность: \(String(format: "%.2f", acuracy))%"
+            
+            let result = QuizResultsViewModel(
+                title: "Этот раунд окончен!",
+                text: message,
+                buttonText: "Сыграть еще раз")
+            
+            viewController?.show(quiz: result)
+        } else {
+            self.switchToNextQuestion()
+            
+            self.viewController?.questionFactory?.requestNextQuestion()
+        }
     }
 }

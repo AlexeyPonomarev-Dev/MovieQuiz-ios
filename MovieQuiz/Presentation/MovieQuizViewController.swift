@@ -7,10 +7,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var questionLabel: UILabel!
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
-    private var correctAnswers = 0
-    private var questionFactory: QuestionFactoryProtocol?
     private var alertPresenter: AlertPresenter?
-    private var statisticService: StatisticService?
+    
+    var questionFactory: QuestionFactoryProtocol?
+    var statisticService: StatisticService?
 
     private let presenter = MovieQuizPresenter()
     // MARK: - Lifecycle
@@ -31,15 +31,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - QuestionFactoryDelegate
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else {
-            return
-        }
-        
-        presenter.currentQuestion = question
-        let viewModel = presenter.convert(model: question)
-        DispatchQueue.main.async { [weak self] in
-            self?.show(quiz: viewModel)
-        }
+        presenter.didReceiveNextQuestion(question: question)
     }
     
     func didLoadDataFromServer() {
@@ -64,7 +56,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             self.questionFactory?.loadData()
             self.setLoadingIndicator(enabled: true)
             self.presenter.resetQuestionIndex()
-            self.correctAnswers = 0
+            self.presenter.correctAnswers = 0
         }
 
         alertPresenter?.show(data: alertData)
@@ -84,13 +76,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     // MARK: - Private functions
 
-    private func show(quiz step: QuizStepViewModel) {
+    func show(quiz step: QuizStepViewModel) {
         indexLabel.text = step.questionNumber
         previewImage.image = step.image
         questionLabel.text = step.question
     }
     
-    private func show(quiz result: QuizResultsViewModel) {
+    func show(quiz result: QuizResultsViewModel) {
         let alertData = AlertModel(
             title: result.title,
             message: result.text,
@@ -99,7 +91,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             guard let self = self else { return }
 
             self.presenter.resetQuestionIndex()
-            self.correctAnswers = 0
+            self.presenter.correctAnswers = 0
             self.questionFactory?.requestNextQuestion()
         }
 
@@ -108,7 +100,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     func showAnswerResult(isCorrect: Bool) {
         if (isCorrect) {
-            correctAnswers += 1
+            presenter.correctAnswers += 1
         }
 
         let borderColor = isCorrect
@@ -122,34 +114,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
 
-            self.showNextQuestionOrResults()
+            self.presenter.showNextQuestionOrResults()
             self.setButtons(enabled: true)
             self.previewImage.layer.borderWidth = 0
-        }
-    }
-    
-    private func showNextQuestionOrResults() {
-        if presenter.isLastQWuestion() {
-            statisticService?.store(correct: correctAnswers, total: presenter.questionAmount)
-        
-            guard let record = statisticService?.bestGame,
-                  let gamesCount = statisticService?.gamesCount,
-                  let acuracy = statisticService?.totalAccuracy else {
-                return
-            }
-
-            let message = "Ваш результат: \(correctAnswers)/\(presenter.questionAmount)\nКоличество сыгранных квизов: \(gamesCount)\nРекорд: \(record.correct)/\(record.total) (\(record.date))\nСредняя точность: \(String(format: "%.2f", acuracy))%"
-            
-            let result = QuizResultsViewModel(
-                title: "Этот раунд окончен!",
-                text: message,
-                buttonText: "Сыграть еще раз")
-            
-            show(quiz: result)
-        } else {
-            presenter.switchToNextQuestion()
-            
-            questionFactory?.requestNextQuestion()
         }
     }
     
