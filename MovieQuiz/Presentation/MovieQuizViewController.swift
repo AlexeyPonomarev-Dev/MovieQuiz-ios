@@ -9,7 +9,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private var correctAnswers = 0
     private var questionFactory: QuestionFactoryProtocol?
-    private var currentQuestion: QuizQuestion?
     private var alertPresenter: AlertPresenter?
     private var statisticService: StatisticService?
 
@@ -21,8 +20,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         previewImage.layer.cornerRadius = 20
         
         self.statisticService = StatisticServiceImplementation()
-
         alertPresenter = AlertPresenter(view: self)
+        presenter.viewController = self
 
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         setLoadingIndicator(enabled: true)
@@ -36,7 +35,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             return
         }
         
-        currentQuestion = question
+        presenter.currentQuestion = question
         let viewModel = presenter.convert(model: question)
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
@@ -76,17 +75,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - Actions
 
     @IBAction private func noButtonPress(_ sender: Any) {
-        guard let currentQuestion = currentQuestion else { return }
-    
-        setButtons(enabled: false)
-        showAnswerResult(isCorrect: !currentQuestion.correctAnswer)
+        presenter.noButtonPress()
     }
 
     @IBAction private func yesButtonPress(_ sender: Any) {
-        guard let currentQuestion = currentQuestion else { return }
-        
-        setButtons(enabled: false)
-        showAnswerResult(isCorrect: currentQuestion.correctAnswer)
+        presenter.yesButtonPress()
     }
     
     // MARK: - Private functions
@@ -113,7 +106,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         alertPresenter?.show(data: alertData)
     }
     
-    private func showAnswerResult(isCorrect: Bool) {
+    func showAnswerResult(isCorrect: Bool) {
         if (isCorrect) {
             correctAnswers += 1
         }
@@ -160,7 +153,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
     }
     
-    private func setButtons(enabled: Bool) {
+    func setButtons(enabled: Bool) {
         for button in buttons {
             button.isEnabled = enabled
         }
