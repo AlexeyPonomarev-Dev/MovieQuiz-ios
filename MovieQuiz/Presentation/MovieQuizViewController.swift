@@ -1,68 +1,27 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
     @IBOutlet private var buttons: [UIButton]!
     @IBOutlet private weak var indexLabel: UILabel!
     @IBOutlet private weak var previewImage: UIImageView!
     @IBOutlet private weak var questionLabel: UILabel!
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
-    private var alertPresenter: AlertPresenter?
-    
-    var questionFactory: QuestionFactoryProtocol?
-    var statisticService: StatisticService?
+    var alertPresenter: AlertPresenter?
+    private var presenter: MovieQuizPresenter!
 
-    private let presenter = MovieQuizPresenter()
+    
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
         previewImage.layer.cornerRadius = 20
         
-        self.statisticService = StatisticServiceImplementation()
+        self.presenter = MovieQuizPresenter(viewController: self)
         alertPresenter = AlertPresenter(view: self)
-        presenter.viewController = self
 
-        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         setLoadingIndicator(enabled: true)
-        questionFactory?.loadData()
     }
-    
-    // MARK: - QuestionFactoryDelegate
-    
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        presenter.didReceiveNextQuestion(question: question)
-    }
-    
-    func didLoadDataFromServer() {
-        setLoadingIndicator(enabled: false)
-        questionFactory?.requestNextQuestion()
-    }
-    
-    func didFailToLoadData(with error: Error) {
-        showNetworkError(message: error.localizedDescription)
-    }
-    
-    func showNetworkError(message: String) {
-        setLoadingIndicator(enabled: false)
-
-        let alertData = AlertModel(
-            title: "Ощибка",
-            message: message,
-            buttonText: "Попробовать ещё раз"
-        ) { [weak self] in
-            guard let self = self else { return }
-
-            self.questionFactory?.loadData()
-            self.setLoadingIndicator(enabled: true)
-            self.presenter.resetQuestionIndex()
-            self.presenter.correctAnswers = 0
-        }
-
-        alertPresenter?.show(data: alertData)
-    }
-    
-    
 
     // MARK: - Actions
 
@@ -74,12 +33,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         presenter.yesButtonPress()
     }
     
-    // MARK: - Private functions
-
     func show(quiz step: QuizStepViewModel) {
         indexLabel.text = step.questionNumber
         previewImage.image = step.image
         questionLabel.text = step.question
+        previewImage.layer.borderWidth = 0
     }
     
     func show(quiz result: QuizResultsViewModel) {
@@ -90,35 +48,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         ) { [weak self] in
             guard let self = self else { return }
 
-            self.presenter.resetQuestionIndex()
-            self.presenter.correctAnswers = 0
-            self.questionFactory?.requestNextQuestion()
+            self.presenter?.resetGame()
         }
 
         alertPresenter?.show(data: alertData)
     }
-    
-    func showAnswerResult(isCorrect: Bool) {
-        if (isCorrect) {
-            presenter.correctAnswers += 1
-        }
 
-        let borderColor = isCorrect
-            ? UIColor.ypGreen.cgColor
-            : UIColor.ypRed.cgColor
-        
-        previewImage.layer.masksToBounds = true
-        previewImage.layer.borderWidth = 8
-        previewImage.layer.borderColor = borderColor
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else { return }
-
-            self.presenter.showNextQuestionOrResults()
-            self.setButtons(enabled: true)
-            self.previewImage.layer.borderWidth = 0
-        }
-    }
     
     func setButtons(enabled: Bool) {
         for button in buttons {
@@ -126,7 +61,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
     }
     
-    private func setLoadingIndicator(enabled: Bool) {
+    func setLoadingIndicator(enabled: Bool) {
         activityIndicator.isHidden = enabled
         if (enabled) {
             activityIndicator.startAnimating()
@@ -134,6 +69,16 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             activityIndicator.stopAnimating()
         }
        
+    }
+    
+    func hightlightImageBorder(isCorrect: Bool) {
+        let borderColor = isCorrect
+            ? UIColor.ypGreen.cgColor
+            : UIColor.ypRed.cgColor
+        
+        previewImage.layer.masksToBounds = true
+        previewImage.layer.borderWidth = 8
+        previewImage.layer.borderColor = borderColor
     }
 }
 
