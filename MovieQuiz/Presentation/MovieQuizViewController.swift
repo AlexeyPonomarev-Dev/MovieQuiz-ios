@@ -1,12 +1,12 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
-    
     @IBOutlet private var buttons: [UIButton]!
     @IBOutlet private weak var indexLabel: UILabel!
     @IBOutlet private weak var previewImage: UIImageView!
     @IBOutlet private weak var questionLabel: UILabel!
-
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
+    
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
     private let questionAmount: Int = 10
@@ -21,18 +21,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         super.viewDidLoad()
         previewImage.layer.cornerRadius = 20
         
-        var documentsURL = FileManager.default.urls(
-            for: .documentDirectory,
-            in: .userDomainMask).first!
-        let fileName = "top250MoviesIMDB.json"
-        documentsURL.appendPathComponent(fileName)
-        
         self.statisticService = StatisticServiceImplementation()
 
         alertPresenter = AlertPresenter(view: self)
 
-        questionFactory = QuestionFactory.init(delegate: self)
-        questionFactory?.requestNextQuestion()
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        showLoadingIndicator()
+        questionFactory?.loadData()
     }
     
     // MARK: - QuestionFactoryDelegate
@@ -48,6 +43,34 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             self?.show(quiz: viewModel)
         }
     }
+    
+    func didLoadDataFromServer() {
+        hideLoadingIndicator()
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: Error) {
+        showNetworkError(message: error.localizedDescription)
+    }
+    
+    func showNetworkError(message: String) {
+        hideLoadingIndicator()
+
+        let alertData = AlertModel(
+            title: "Ощибка",
+            message: message,
+            buttonText: "Попробовать ещё раз"
+        ) { [weak self] in
+            guard let self = self else { return }
+
+            self.questionFactory?.loadData()
+            self.showLoadingIndicator()
+        }
+
+        alertPresenter?.show(data: alertData)
+    }
+    
+    
 
     // MARK: - Actions
 
@@ -66,7 +89,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        let image = UIImage(named: model.image) ?? UIImage()
+        let image = UIImage(data: model.image) ?? UIImage()
         let index = currentQuestionIndex + 1
         let questionNumber = "\(index)/\(questionAmount)"
         
@@ -151,6 +174,16 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         for button in buttons {
             button.isEnabled = enabled
         }
+    }
+    
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    
+    private func hideLoadingIndicator() {
+        activityIndicator.isHidden = true
+        activityIndicator.stopAnimating()
     }
 }
 

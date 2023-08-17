@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina5_9" orientation="portrait" appearance="dark"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -26,7 +26,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="3zV-gz-LCd">
-                                <rect key="frame" x="20" y="57" width="335" height="721"/>
+                                <rect key="frame" x="20" y="60" width="335" height="718"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Gmh-yt-iYZ">
                                         <rect key="frame" x="0.0" y="0.0" width="335" height="23.666666666666668"/>
@@ -46,20 +46,20 @@
                                         </subviews>
                                     </stackView>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="2WT-Xx-bzL" userLabel="Preview Image">
-                                        <rect key="frame" x="0.0" y="43.666666666666657" width="335" height="502.66666666666686"/>
+                                        <rect key="frame" x="0.0" y="43.666666666666657" width="335" height="502.66666666666674"/>
                                         <color key="backgroundColor" name="YP White"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="2WT-Xx-bzL" secondAttribute="height" multiplier="2:3" id="S3J-c4-zmh"/>
                                         </constraints>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Рейтинг этого фильма меньше, чем 5?" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qf0-ev-zMn" userLabel="Question Label">
-                                        <rect key="frame" x="0.0" y="566.33333333333337" width="335" height="74.666666666666629"/>
+                                        <rect key="frame" x="0.0" y="566.33333333333337" width="335" height="71.666666666666629"/>
                                         <fontDescription key="fontDescription" name="YSDisplay-Bold" family="YS Display" pointSize="23"/>
                                         <color key="textColor" name="YP White"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="OYb-HV-MsV">
-                                        <rect key="frame" x="0.0" y="661" width="335" height="60"/>
+                                        <rect key="frame" x="0.0" y="658" width="335" height="60"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="awe-Cj-ICS" userLabel="No button">
                                                 <rect key="frame" x="0.0" y="0.0" width="157.66666666666666" height="60"/>
@@ -107,6 +107,9 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="8S5-Wn-bVM">
+                                <rect key="frame" x="177.66666666666666" y="396" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black"/>
@@ -114,10 +117,13 @@
                             <constraint firstItem="3zV-gz-LCd" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="Pii-j8-8DB"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="3zV-gz-LCd" secondAttribute="bottom" id="hbg-u8-ayS"/>
                             <constraint firstItem="3zV-gz-LCd" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="jhI-jX-6nZ"/>
+                            <constraint firstItem="8S5-Wn-bVM" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="mbM-uL-ic6"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="3zV-gz-LCd" secondAttribute="trailing" constant="20" id="sWJ-aj-z2X"/>
+                            <constraint firstItem="8S5-Wn-bVM" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="tdi-xU-IkM"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="8S5-Wn-bVM" id="uvD-Qe-PVW"/>
                         <outlet property="indexLabel" destination="FjJ-ty-WXS" id="L7W-kY-u52"/>
                         <outlet property="previewImage" destination="2WT-Xx-bzL" id="DCv-aI-8XZ"/>
                         <outlet property="questionLabel" destination="qf0-ev-zMn" id="aLL-lH-Vjc"/>
