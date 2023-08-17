@@ -64,7 +64,8 @@ final class StatisticServiceImplementation: StatisticService {
         let gameRecord = GameRecord(correct: count, total: amount, date: Date().dateTimeString)
         if bestGame <= gameRecord {
             bestGame = gameRecord
-            gamesCount = gamesCount + 1
         }
+        
+        gamesCount = gamesCount + 1
     }
 }

@@ -10,7 +10,7 @@ import Foundation
 class QuestionFactory: QuestionFactoryProtocol {
     private let moviesLoader: MoviesLoading
     private weak var delegate: QuestionFactoryDelegate?
-    private var medianRating: Double = 0
+    private var meddleRating: Double = 0
     
     private var movies: [MostPopularMovie] = []
     
@@ -79,7 +79,7 @@ class QuestionFactory: QuestionFactoryProtocol {
                 guard let self = self else { return }
                 switch result {
                 case .success(let mostPopularMovies):
-                    self.medianRating = self.getMedianRating(from: mostPopularMovies.items)
+                    self.meddleRating = self.getMeddleRating(from: mostPopularMovies.items)
                     self.movies = mostPopularMovies.items
                     self.delegate?.didLoadDataFromServer()
                 case .failure(let error):
@@ -110,8 +110,8 @@ class QuestionFactory: QuestionFactoryProtocol {
              }
              
             let rating = Double(movie.rating) ?? 0
-            let text = "Рейтинг этого фильма больше чем \(self.medianRating)?"
-            let correctAnswer = rating > self.medianRating
+            let text = "Рейтинг этого фильма больше чем \(self.meddleRating)?"
+            let correctAnswer = rating > self.meddleRating
              
              let question = QuizQuestion(image: imageData,
                                          text: text,
@@ -124,7 +124,7 @@ class QuestionFactory: QuestionFactoryProtocol {
          }
     }
     
-    private func getMedianRating(from movies: [MostPopularMovie]) -> Double {
+    private func getMeddleRating(from movies: [MostPopularMovie]) -> Double {
         let sum = movies.reduce(0) { partialResult, movie in
             partialResult + (Double(movie.rating) ?? 0)
         }
